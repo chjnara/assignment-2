@@ -6,6 +6,8 @@ let eye = [0, 0, 0.1];
 let at = [0, 0, 0];
 let up = [0, 1, 0];
 
+let theta= 0.1; //gonna use for the rotation
+
 onload = () => {
     let canvas = document.getElementById("webgl-canvas");
     
@@ -87,6 +89,7 @@ onload = () => {
     modelViewMatrix = gl.getUniformLocation(program, 'modelViewMatrix');
 
     render();
+    document.addEventListener('keydown', handleKeyDown);
 };
 
 
@@ -100,5 +103,57 @@ function render() {
 
     gl.drawElements(gl.TRIANGLES, vertexCount, gl.UNSIGNED_BYTE, 0);
 
-    // requestAnimationFrame(render);
+    requestAnimationFrame(render);
+}
+
+
+function handleKeyDown(event) {
+    switch (event.key) {
+       case't':
+        eye= vec3(0, 1, 0);
+        // for the top view
+           break;
+        case 'l':
+            eye= vec3(-0.1, 0 , 0);
+            //for the left view
+            break;
+        case 'f':
+            eye= vec3(0, 0, 0.1);
+            //for the front view
+            break;
+         case 'd':
+                rotateCamera(theta);
+                //for rotating the camera in the clockwise
+            break;
+        case 'a':
+                rotateCamera(-theta);
+                //for rotating the camera in the counter-clockwise
+            break;             
+    }
+    render();
+}
+
+
+function rotateCamera(angle) {
+
+    let rotationMatrix = rotate(-angle, up);
+    eye= multMat4Vec3(rotationMatrix, eye);
+
+}
+
+
+function multMat4Vec3(mat, vec) {
+    let result =[];
+
+    for(let i = 0; i<3; i++)
+    {
+        let sum=0;
+        for (let j=0; j<3; j++)
+        {
+sum += mat[i][j] * vec[j];
+        }
+        result.push(sum);
+    }
+
+    return result;
 }
