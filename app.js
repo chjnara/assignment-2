@@ -1,7 +1,14 @@
-let gl, program;
+let gl;
+let program;
+let projectionMatrix;
 let vertexCount = 36;
 let modelViewMatrix;
-
+let far = 1;
+let right = 1;
+let bottom = -1;
+let ytop = 1;
+let left= -1;
+let near = -1;
 let eye = [0, 0, 0.1];
 let at = [0, 0, 0];
 let up = [0, 1, 0];
@@ -96,10 +103,12 @@ onload = () => {
 function render() { 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    mvm = lookAt(eye, at, up);
+    let projection= ortho(left, right, bottom, ytop, near, far);
+    let mvm = lookAt(eye, at, up);
+    let modelViewProjectionMatrix= mult (projection, mvm);
 
     gl.uniformMatrix4fv(modelViewMatrix, false,
-    flatten(mvm));
+    flatten(modelViewProjectionMatrix));
 
     gl.drawElements(gl.TRIANGLES, vertexCount, gl.UNSIGNED_BYTE, 0);
 
@@ -107,7 +116,9 @@ function render() {
 }
 
 
-function handleKeyDown(event) {
+function handleKeyDown(event)
+ {
+let zoomSpeed= 0.1;
     switch (event.key) {
        case't':
         eye= vec3(0, 1, 0);
@@ -128,7 +139,23 @@ function handleKeyDown(event) {
         case 'a':
                 rotateCamera(-theta);
                 //for rotating the camera in the counter-clockwise
-            break;             
+            break;   
+        case 'i':
+            projectionMatrix=mult(ortho(-1,1,-1,1-1,1), translate(0,0,-1))   ;
+            //for the isometric view
+            break;
+        case 's' : //   for zooming out
+        left = left - zoomSpeed;
+            right = right + zoomSpeed;
+                bottom = bottom - zoomSpeed;
+                        ytop = ytop + zoomSpeed;
+             break;
+        case 'w': //for zooming in
+        left = left + zoomSpeed;
+            right = right - zoomSpeed;
+                bottom = bottom + zoomSpeed;
+                        ytop = ytop - zoomSpeed;
+             break;
     }
     render();
 }
